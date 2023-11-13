@@ -154,27 +154,26 @@ class Frontier:
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     start = problem.getStartState()
-    explored = set(start)
+    explored = set([start])
     # initialise first frontier
-
     frontiers = util.PriorityQueue()
     for successor, action, stepCost in problem.getSuccessors(start):
         frontiers.push(Frontier(state=successor, actions=[action], total_cost=stepCost), stepCost)
-    goal_reached = False
-    while not goal_reached:
+    while True:
         cheapest_frontier = frontiers.pop()
         state = cheapest_frontier.state
+        if state in explored:
+            continue
         explored.add(state)
-        if problem.isGoalState(state):
-            goal_reached = True
         actions = cheapest_frontier.actions
         total_cost = cheapest_frontier.total_cost
+        if problem.isGoalState(state):
+            break
         for successor, action, stepCost in problem.getSuccessors(state):
             if successor in explored:
                 continue
             new_total_cost = total_cost + stepCost
             frontiers.push(Frontier(state=successor, actions=[*actions, action], total_cost=new_total_cost), new_total_cost)
-
     return actions
 def nullHeuristic(state, problem=None):
     """
