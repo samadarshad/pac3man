@@ -121,6 +121,7 @@ def breadthFirstSearch(problem):
     start = problem.getStartState()
     queue = util.Queue()
     actions = util.Stack()
+    # initialise
     for successor in problem.getSuccessors(start):
         queue.push((successor, actions))
     visited = set([start])
@@ -128,6 +129,8 @@ def breadthFirstSearch(problem):
     while not queue.isEmpty():
         successors, actions = queue.pop()
         state, action, _ = successors
+        if state in visited:
+            continue
         # copy actions stack
         updated_actions = util.Stack()
         for a in actions.list:
@@ -139,8 +142,7 @@ def breadthFirstSearch(problem):
         visited.add(state)
         for successor in problem.getSuccessors(state):
             new_state, _, _ = successor
-            if new_state not in visited:
-                queue.push((successor, updated_actions))
+            queue.push((successor, updated_actions))
 
 @dataclasses.dataclass
 class Frontier:
