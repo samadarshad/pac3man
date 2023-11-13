@@ -33,6 +33,7 @@ description for details.
 
 Good luck and happy searching!
 """
+import dataclasses
 
 from game import Directions
 from game import Agent
@@ -265,6 +266,16 @@ def euclideanHeuristic(position, problem, info={}):
 #####################################################
 # This portion is incomplete.  Time to write code!  #
 #####################################################
+@dataclasses.dataclass
+class CornersState:
+    position: tuple
+    corners_passed: set[tuple]
+
+    def __eq__(self, other):
+        return (set(other.corners_passed) == set(self.corners_passed)) and (other.position == self.position)
+
+    def __hash__(self):
+        return hash((self.position, self.corners_passed.__hash__))
 
 class CornersProblem(search.SearchProblem):
     """
@@ -294,17 +305,15 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return CornersState(position=self.startingPosition, corners_passed=set())
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return state.corners_passed == set(self.corners)
 
-    def getSuccessors(self, state):
+    def getSuccessors(self, state: CornersState):
         """
         Returns successor states, the actions they require, and a cost of 1.
 
@@ -323,8 +332,15 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
-            "*** YOUR CODE HERE ***"
+            x, y = state.position
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                corners_passed = state.corners_passed.copy()
+                if (nextx, nexty) in self.corners:
+                    corners_passed.add((nextx, nexty))
+                successors.append((CornersState(position=(nextx, nexty), corners_passed=corners_passed), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
