@@ -390,6 +390,7 @@ def cornersHeuristic(state: CornersState, problem):
         heuristic += closest_corner[1]
         # the next closest corner to that corner
         non_taken_corners.remove(closest_corner[0])
+        position = closest_corner[0]
 
     return heuristic
 
