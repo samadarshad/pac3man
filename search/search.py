@@ -110,15 +110,11 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     actions = util.Stack()
-    visited = set(problem.getStartState())
-    print(visited)
     state = problem.getStartState()
-    return dfsRecursive(problem, state, actions, visited)
+    visited = set([state])
+    result = dfsRecursive(problem, state, actions, visited)
+    return result
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
