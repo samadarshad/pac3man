@@ -460,6 +460,9 @@ class AStarFoodSearchAgent(SearchAgent):
 def get_closest_food(position, foodList) -> (int, tuple):
     return min([(util.manhattanDistance(position, food), food) for food in foodList], key=lambda x: x[0])
 
+def get_furthest_food(position, foodList) -> (int, tuple):
+    return max([(util.manhattanDistance(position, food), food) for food in foodList], key=lambda x: x[0])
+
 def foodHeuristic(state, problem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -490,17 +493,35 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
 
-    # nearest neighbour for an underestimate of the total distance travelled to reach all foods
     foodList = foodGrid.asList()
-    total_distance = 0
-    while foodList:
-        distance_to_closest_food, closest_food  = get_closest_food(position, foodList)
-        # print(closest_food, distance_to_closest_food)
-        total_distance += distance_to_closest_food
-        foodList.remove(closest_food)
-        position = closest_food
+    if not foodList:
+        return 0
 
-    return total_distance
+    distance_to_closest_food, closest_food = get_closest_food(position, foodList)
+
+    distance_to_furthest_food, furthest_food = get_furthest_food(position, foodList)
+    position = furthest_food
+    foodList.remove(position)
+
+    # start the MST from the furthest point
+    minimum_spanning_tree = set()
+    food_weights = {food: 999999 for food in foodList}
+    food_weights[position] = 0
+    while len(minimum_spanning_tree) < len(foodList):
+        foods_not_in_MST = {key: value for key, value in food_weights.items() if key not in minimum_spanning_tree}
+        selected_food = min(foods_not_in_MST, key=foods_not_in_MST.get)
+        minimum_spanning_tree.add(selected_food)
+        for food, weight in food_weights.items():
+            if food == selected_food:
+                continue
+            distance = util.manhattanDistance(selected_food, food)
+            if distance < weight:
+                food_weights[food] = distance
+
+    result = sum(food_weights.values())
+    # add the distance to the closest point
+    result += distance_to_closest_food
+    return result
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
